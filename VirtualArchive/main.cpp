@@ -2,10 +2,10 @@
 #include <string>
 #include <memory>
 #include <functional>
-#include <algorithm>
 #include "Directory.h"
 #include "File.h"
 #include "exceptions.h"
+#include "Logger.h"
 
 using namespace std;
 
@@ -49,9 +49,11 @@ void createFile() {
         auto file = make_unique<File>(name, ext, size);
         root->addChild(move(file));
         cout << "Файл успешно создан!\n";
+        Logger::getInstance()->info("File created: " + name + "." + ext);
     }
     catch (const exception& e) {
         cout << "Ошибка: " << e.what() << endl;
+        Logger::getInstance()->error("Failed to create file " + name + ": " + e.what());
     }
 }
 
@@ -76,9 +78,11 @@ void createDirectory() {
         auto dir = make_unique<Directory>(name, access);
         root->addChild(move(dir));
         cout << "Папка успешно создана!\n";
+        Logger::getInstance()->info("Directory created: " + name + " (level: " + to_string(level) + ")");
     }
     catch (const exception& e) {
         cout << "Ошибка: " << e.what() << endl;
+        Logger::getInstance()->error("Failed to create directory " + name + ": " + e.what());
     }
 }
 
@@ -91,9 +95,11 @@ void deleteResource() {
     try {
         auto removed = root->removeChild(name);
         cout << "Ресурс \"" << name << "\" удалён\n";
+        Logger::getInstance()->warning("Resource deleted: " + name);
     }
     catch (const exception& e) {
         cout << "Ошибка: " << e.what() << endl;
+        Logger::getInstance()->error("Failed to delete " + name + ": " + e.what());
     }
 }
 
@@ -107,13 +113,15 @@ void searchResource() {
     if (found) {
         cout << "Найден: ";
         found->print();
+        Logger::getInstance()->info("Search found: " + name);
     }
     else {
         cout << "Ресурс \"" << name << "\" не найден\n";
+        Logger::getInstance()->warning("Search not found: " + name);
     }
 }
 
-// Функция для статистики (без использования count)
+// Функция для статистики
 void showStatistics() {
     cout << "\n=== СТАТИСТИКА АРХИВА ===\n";
     cout << "Общий размер: " << root->getSize() << " байт\n";
@@ -145,16 +153,38 @@ void showStatistics() {
     if (fileCount > 0) {
         cout << "Средний размер файла: " << root->getSize() / fileCount << " байт\n";
     }
+
+    Logger::getInstance()->info("Statistics viewed: " + to_string(fileCount) + " files, " + to_string(dirCount) + " directories");
 }
 
 // Сохранение в файл (заглушка)
 void saveArchive() {
     cout << "Сохранение архива (будет реализовано позже)...\n";
+    Logger::getInstance()->info("Save archive requested");
 }
 
 // Загрузка из файла (заглушка)
 void loadArchive() {
     cout << "Загрузка архива (будет реализовано позже)...\n";
+    Logger::getInstance()->info("Load archive requested");
+}
+
+// Функция для перемещения (заглушка)
+void moveResource() {
+    cout << "Перемещение (будет реализовано позже)...\n";
+    Logger::getInstance()->info("Move resource requested");
+}
+
+// Функция для копирования (заглушка)
+void copyResource() {
+    cout << "Копирование (будет реализовано позже)...\n";
+    Logger::getInstance()->info("Copy resource requested");
+}
+
+// Функция для фильтрации по дате (заглушка)
+void filterByDate() {
+    cout << "Фильтрация по дате (будет реализовано позже)...\n";
+    Logger::getInstance()->info("Filter by date requested");
 }
 
 int main() {
@@ -166,6 +196,8 @@ int main() {
     cout << "=== СИСТЕМА ВИРТУАЛЬНОГО АРХИВА ===\n";
     cout << "Добро пожаловать!\n";
 
+    Logger::getInstance()->info("Program started");
+
     int choice;
 
     do {
@@ -176,6 +208,7 @@ int main() {
             cin.clear();
             cin.ignore(10000, '\n');
             cout << "Ошибка! Введите число.\n";
+            Logger::getInstance()->warning("Invalid input (not a number)");
             continue;
         }
 
@@ -189,21 +222,22 @@ int main() {
         case 3:
             cout << "\nСтруктура архива:\n";
             root->print();
+            Logger::getInstance()->info("Structure viewed");
             break;
         case 4:
             deleteResource();
             break;
         case 5:
-            cout << "Перемещение (будет реализовано позже)...\n";
+            moveResource();
             break;
         case 6:
-            cout << "Копирование (будет реализовано позже)...\n";
+            copyResource();
             break;
         case 7:
             searchResource();
             break;
         case 8:
-            cout << "Фильтрация по дате (будет реализовано позже)...\n";
+            filterByDate();
             break;
         case 9:
             showStatistics();
@@ -216,11 +250,15 @@ int main() {
             break;
         case 0:
             cout << "Выход из программы...\n";
+            Logger::getInstance()->info("Program exited");
             break;
         default:
             cout << "Неверный выбор! Введите число от 0 до 11.\n";
+            Logger::getInstance()->warning("Invalid menu choice: " + to_string(choice));
         }
     } while (choice != 0);
+
+    Logger::destroy();
 
     return 0;
 }

@@ -24,7 +24,6 @@
     <ClInclude Include="exceptions.h" />
     <ClInclude Include="File.h" />
     <ClInclude Include="Logger.h" />
-    <ClInclude Include="Resource.h" />
     <ClInclude Include="Serializer.h" />
   </ItemGroup>
   <ItemGroup>
@@ -32,8 +31,6 @@
     <ClCompile Include="Directory.cpp" />
     <ClCompile Include="File.cpp" />
     <ClCompile Include="Logger.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="Resource.cpp" />
     <ClCompile Include="Serializer.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

@@ -29,6 +29,7 @@ void showMenu() {
     cout << "9. Статистика\n";
     cout << "10. Сохранить архив\n";
     cout << "11. Загрузить архив\n";
+    cout << "12. Сортировка корневой папки\n";
     cout << "0. Выход\n";
     cout << "========================================\n";
     cout << "Ваш выбор: ";
@@ -253,7 +254,7 @@ void moveResource() {
     }
 }
 
-// Функция для копирования ресурса (ШАГ 3 - РЕАЛЬНАЯ)
+// Функция для копирования ресурса
 void copyResource() {
     string name;
     string targetName;
@@ -294,6 +295,27 @@ void copyResource() {
         cout << "Ошибка копирования: " << e.what() << "\n";
         Logger::getInstance()->error("Copy failed: " + string(e.what()));
     }
+}
+
+// Функция для сортировки корневой папки (ШАГ 4)
+void sortRoot() {
+    int choice;
+    cout << "Сортировка по: 1-Имя, 2-Размер, 3-Дата: ";
+    cin >> choice;
+
+    SortBy sortBy;
+    switch (choice) {
+    case 1: sortBy = SortBy::NAME; break;
+    case 2: sortBy = SortBy::SIZE; break;
+    case 3: sortBy = SortBy::DATE; break;
+    default:
+        cout << "Неверный выбор\n";
+        return;
+    }
+
+    root->sortChildren(sortBy);
+    cout << "Сортировка выполнена\n";
+    Logger::getInstance()->info("Root directory sorted");
 }
 
 int main() {
@@ -356,12 +378,15 @@ int main() {
         case 11:
             loadArchive();
             break;
+        case 12:
+            sortRoot();
+            break;
         case 0:
             cout << "Выход из программы...\n";
             Logger::getInstance()->info("Program exited");
             break;
         default:
-            cout << "Неверный выбор! Введите число от 0 до 11.\n";
+            cout << "Неверный выбор! Введите число от 0 до 12.\n";
             Logger::getInstance()->warning("Invalid menu choice: " + to_string(choice));
         }
     } while (choice != 0);

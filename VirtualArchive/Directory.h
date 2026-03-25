@@ -9,6 +9,12 @@ enum class AccessLevel {
     ADMIN
 };
 
+enum class SortBy {
+    NAME,
+    SIZE,
+    DATE
+};
+
 class Directory : public Resource {
 private:
     std::vector<std::unique_ptr<Resource>> children;
@@ -23,7 +29,7 @@ public:
 
     AccessLevel getAccessLevel() const;
     void setAccessLevel(AccessLevel level);
-
+    void sortChildren(SortBy sortBy);
     long long getSize() const override;
     void print(int depth = 0) const override;
     std::unique_ptr<Resource> clone() const override;

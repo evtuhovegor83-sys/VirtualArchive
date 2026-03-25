@@ -151,3 +151,27 @@ void Directory::moveChild(const std::string& name, Directory* newParent) {
     newParent->addChild(std::move(child));
     Logger::getInstance()->info("Moved " + name + " to new parent");
 }
+// Сортировка детей
+void Directory::sortChildren(SortBy sortBy) {
+    switch (sortBy) {
+    case SortBy::NAME:
+        std::sort(children.begin(), children.end(),
+            [](const std::unique_ptr<Resource>& a, const std::unique_ptr<Resource>& b) {
+                return a->getName() < b->getName();
+            });
+        break;
+    case SortBy::SIZE:
+        std::sort(children.begin(), children.end(),
+            [](const std::unique_ptr<Resource>& a, const std::unique_ptr<Resource>& b) {
+                return a->getSize() < b->getSize();
+            });
+        break;
+    case SortBy::DATE:
+        std::sort(children.begin(), children.end(),
+            [](const std::unique_ptr<Resource>& a, const std::unique_ptr<Resource>& b) {
+                return a->getCreationDate() < b->getCreationDate();
+            });
+        break;
+    }
+    Logger::getInstance()->info("Directory sorted");
+}

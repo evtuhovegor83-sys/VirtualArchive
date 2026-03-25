@@ -6,6 +6,7 @@
 #include "File.h"
 #include "exceptions.h"
 #include "Logger.h"
+#include "Serializer.h"
 
 using namespace std;
 
@@ -159,14 +160,33 @@ void showStatistics() {
 
 // Сохранение в файл (заглушка)
 void saveArchive() {
-    cout << "Сохранение архива (будет реализовано позже)...\n";
-    Logger::getInstance()->info("Save archive requested");
+    string filename = "archive.dat";
+    try {
+        Serializer::save(filename, root.get());
+        cout << "Архив сохранён в файл " << filename << "\n";
+        Logger::getInstance()->info("Archive saved to " + filename);
+    }
+    catch (const exception& e) {
+        cout << "Ошибка сохранения: " << e.what() << "\n";
+        Logger::getInstance()->error("Save failed: " + string(e.what()));
+    }
 }
 
 // Загрузка из файла (заглушка)
 void loadArchive() {
-    cout << "Загрузка архива (будет реализовано позже)...\n";
-    Logger::getInstance()->info("Load archive requested");
+    string filename = "archive.dat";
+    try {
+        auto loadedRoot = Serializer::load(filename);
+        if (loadedRoot) {
+            root = std::move(loadedRoot);
+            cout << "Архив загружен из файла " << filename << "\n";
+            Logger::getInstance()->info("Archive loaded from " + filename);
+        }
+    }
+    catch (const exception& e) {
+        cout << "Ошибка загрузки: " << e.what() << "\n";
+        Logger::getInstance()->error("Load failed: " + string(e.what()));
+    }
 }
 
 // Функция для перемещения (заглушка)

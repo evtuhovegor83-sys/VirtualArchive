@@ -118,3 +118,28 @@ std::vector<Resource*> Directory::searchByMask(const std::string& mask) const {
 
     return results;
 }
+
+std::vector<Resource*> Directory::filterByDate(const Date& start, const Date& end) const {
+    std::vector<Resource*> results;
+
+    // Проверяем текущий ресурс
+    if (creationDate >= start && creationDate <= end) {
+        results.push_back(const_cast<Directory*>(this));
+    }
+
+    // Проверяем детей
+    for (const auto& child : children) {
+        Date childDate = child->getCreationDate();
+        if (childDate >= start && childDate <= end) {
+            results.push_back(child.get());
+        }
+
+        // Рекурсивно ищем во вложенных папках
+        if (auto* subdir = dynamic_cast<Directory*>(child.get())) {
+            auto subResults = subdir->filterByDate(start, end);
+            results.insert(results.end(), subResults.begin(), subResults.end());
+        }
+    }
+
+    return results;
+}

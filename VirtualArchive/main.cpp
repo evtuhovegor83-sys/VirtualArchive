@@ -125,6 +125,32 @@ void searchByMask() {
     }
 }
 
+void filterByDate() {
+    int day1, month1, year1, day2, month2, year2;
+
+    cout << "¬ведите начальную дату (день мес€ц год): ";
+    cin >> day1 >> month1 >> year1;
+    cout << "¬ведите конечную дату (день мес€ц год): ";
+    cin >> day2 >> month2 >> year2;
+
+    Date start(day1, month1, year1);
+    Date end(day2, month2, year2);
+
+    auto results = root->filterByDate(start, end);
+
+    if (results.empty()) {
+        cout << "Ќичего не найдено в указанном диапазоне дат\n";
+        Logger::getInstance()->warning("Filter by date found nothing");
+    }
+    else {
+        cout << "Ќайдено " << results.size() << " ресурсов:\n";
+        for (auto* res : results) {
+            res->print();
+        }
+        Logger::getInstance()->info("Filter by date found " + to_string(results.size()) + " results");
+    }
+}
+
 // ‘ункци€ дл€ поиска по имени (стара€, теперь заменена на маску)
 void searchResource() {
     string name;

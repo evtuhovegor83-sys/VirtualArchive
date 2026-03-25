@@ -34,4 +34,6 @@ public:
 
     // НОВЫЙ МЕТОД: поиск по маске
     std::vector<Resource*> searchByMask(const std::string& mask) const;
+
+    std::vector<Resource*> filterByDate(const Date& start, const Date& end) const;
 };

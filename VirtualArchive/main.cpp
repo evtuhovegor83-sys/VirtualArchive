@@ -104,7 +104,7 @@ void deleteResource() {
     }
 }
 
-// Функция для поиска по маске (НОВАЯ)
+// Функция для поиска по маске
 void searchByMask() {
     string mask;
     cout << "Введите маску для поиска (часть имени или расширения): ";
@@ -125,6 +125,7 @@ void searchByMask() {
     }
 }
 
+// Функция для фильтрации по дате
 void filterByDate() {
     int day1, month1, year1, day2, month2, year2;
 
@@ -151,34 +152,14 @@ void filterByDate() {
     }
 }
 
-// Функция для поиска по имени (старая, теперь заменена на маску)
-void searchResource() {
-    string name;
-    cout << "Введите имя для поиска: ";
-    cin >> name;
-
-    Resource* found = root->findChild(name);
-    if (found) {
-        cout << "Найден: ";
-        found->print();
-        Logger::getInstance()->info("Search found: " + name);
-    }
-    else {
-        cout << "Ресурс \"" << name << "\" не найден\n";
-        Logger::getInstance()->warning("Search not found: " + name);
-    }
-}
-
 // Функция для статистики
 void showStatistics() {
     cout << "\n=== СТАТИСТИКА АРХИВА ===\n";
     cout << "Общий размер: " << root->getSize() << " байт\n";
 
-    // Подсчёт количества файлов и папок
     int fileCount = 0;
     int dirCount = 0;
 
-    // Рекурсивная функция для подсчёта
     function<void(Directory*)> countResources = [&](Directory* dir) {
         const auto& children = dir->getChildren();
         for (size_t i = 0; i < children.size(); i++) {
@@ -205,7 +186,7 @@ void showStatistics() {
     Logger::getInstance()->info("Statistics viewed: " + to_string(fileCount) + " files, " + to_string(dirCount) + " directories");
 }
 
-// Сохранение в файл (реальная сериализация)
+// Сохранение в файл
 void saveArchive() {
     string filename = "archive.dat";
     try {
@@ -219,7 +200,7 @@ void saveArchive() {
     }
 }
 
-// Загрузка из файла (реальная сериализация)
+// Загрузка из файла
 void loadArchive() {
     string filename = "archive.dat";
     try {
@@ -236,10 +217,40 @@ void loadArchive() {
     }
 }
 
-// Функция для перемещения (заглушка)
+// Функция для перемещения ресурса (ШАГ 2 - РЕАЛЬНАЯ)
 void moveResource() {
-    cout << "Перемещение (будет реализовано позже)...\n";
-    Logger::getInstance()->info("Move resource requested");
+    string name;
+    string targetName;
+
+    cout << "Введите имя ресурса для перемещения: ";
+    cin >> name;
+    cout << "Введите имя целевой папки: ";
+    cin >> targetName;
+
+    Resource* target = root->findChild(targetName);
+
+    if (target == nullptr) {
+        cout << "Целевая папка не найдена\n";
+        Logger::getInstance()->warning("Move failed: target directory not found: " + targetName);
+        return;
+    }
+
+    Directory* targetDir = dynamic_cast<Directory*>(target);
+    if (targetDir == nullptr) {
+        cout << "Целевой ресурс не является папкой\n";
+        Logger::getInstance()->warning("Move failed: target is not a directory: " + targetName);
+        return;
+    }
+
+    try {
+        root->moveChild(name, targetDir);
+        cout << "Ресурс \"" << name << "\" перемещён в папку \"" << targetName << "\"\n";
+        Logger::getInstance()->info("Moved " + name + " to " + targetName);
+    }
+    catch (const exception& e) {
+        cout << "Ошибка перемещения: " << e.what() << "\n";
+        Logger::getInstance()->error("Move failed: " + string(e.what()));
+    }
 }
 
 // Функция для копирования (заглушка)
@@ -248,16 +259,9 @@ void copyResource() {
     Logger::getInstance()->info("Copy resource requested");
 }
 
-// Функция для фильтрации по дате (заглушка)
-void filterByDate() {
-    cout << "Фильтрация по дате (будет реализовано позже)...\n";
-    Logger::getInstance()->info("Filter by date requested");
-}
-
 int main() {
     setlocale(LC_ALL, "Russian");
 
-    // Инициализация корневой папки
     root = make_unique<Directory>("root", AccessLevel::ADMIN);
 
     cout << "=== СИСТЕМА ВИРТУАЛЬНОГО АРХИВА ===\n";
@@ -301,7 +305,7 @@ int main() {
             copyResource();
             break;
         case 7:
-            searchByMask();  // НОВАЯ ФУНКЦИЯ ПОИСКА ПО МАСКЕ
+            searchByMask();
             break;
         case 8:
             filterByDate();

@@ -1,5 +1,7 @@
 ﻿#include "Directory.h"
+#include "File.h"
 #include "exceptions.h"
+#include "Logger.h"
 #include <iostream>
 #include <algorithm>
 #include <regex>
@@ -96,11 +98,10 @@ bool Directory::validateName(const std::string& name) {
     return std::regex_match(name, pattern);
 }
 
-// НОВЫЙ МЕТОД: поиск по маске
+// Поиск по маске
 std::vector<Resource*> Directory::searchByMask(const std::string& mask) const {
     std::vector<Resource*> results;
 
-    // Поиск в текущей папке
     for (const auto& child : children) {
         std::string name = child->getName();
         if (name.find(mask) != std::string::npos) {
@@ -108,7 +109,6 @@ std::vector<Resource*> Directory::searchByMask(const std::string& mask) const {
         }
     }
 
-    // Рекурсивный поиск во вложенных папках
     for (const auto& child : children) {
         if (auto* subdir = dynamic_cast<Directory*>(child.get())) {
             auto subResults = subdir->searchByMask(mask);
@@ -119,22 +119,20 @@ std::vector<Resource*> Directory::searchByMask(const std::string& mask) const {
     return results;
 }
 
+// Фильтрация по дате
 std::vector<Resource*> Directory::filterByDate(const Date& start, const Date& end) const {
     std::vector<Resource*> results;
 
-    // Проверяем текущий ресурс
     if (creationDate >= start && creationDate <= end) {
         results.push_back(const_cast<Directory*>(this));
     }
 
-    // Проверяем детей
     for (const auto& child : children) {
         Date childDate = child->getCreationDate();
         if (childDate >= start && childDate <= end) {
             results.push_back(child.get());
         }
 
-        // Рекурсивно ищем во вложенных папках
         if (auto* subdir = dynamic_cast<Directory*>(child.get())) {
             auto subResults = subdir->filterByDate(start, end);
             results.insert(results.end(), subResults.begin(), subResults.end());
@@ -142,4 +140,14 @@ std::vector<Resource*> Directory::filterByDate(const Date& start, const Date& en
     }
 
     return results;
+}
+
+// Перемещение ресурса
+void Directory::moveChild(const std::string& name, Directory* newParent) {
+    auto child = removeChild(name);
+    if (newParent == nullptr) {
+        throw ArchiveException("Invalid target directory");
+    }
+    newParent->addChild(std::move(child));
+    Logger::getInstance()->info("Moved " + name + " to new parent");
 }

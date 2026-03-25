@@ -32,8 +32,12 @@ public:
 
     static bool validateName(const std::string& name);
 
-    // НОВЫЙ МЕТОД: поиск по маске
+    // Поиск по маске
     std::vector<Resource*> searchByMask(const std::string& mask) const;
 
+    // Фильтрация по дате
     std::vector<Resource*> filterByDate(const Date& start, const Date& end) const;
+
+    // Перемещение ресурса (ШАГ 2)
+    void moveChild(const std::string& name, Directory* newParent);
 };

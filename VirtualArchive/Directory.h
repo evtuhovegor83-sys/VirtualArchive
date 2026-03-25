@@ -31,4 +31,7 @@ public:
     const std::vector<std::unique_ptr<Resource>>& getChildren() const;
 
     static bool validateName(const std::string& name);
+
+    // НОВЫЙ МЕТОД: поиск по маске
+    std::vector<Resource*> searchByMask(const std::string& mask) const;
 };

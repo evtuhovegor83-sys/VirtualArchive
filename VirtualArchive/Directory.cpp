@@ -95,3 +95,26 @@ bool Directory::validateName(const std::string& name) {
     std::regex pattern(R"(^[a-zA-Z0-9_\-]+$)");
     return std::regex_match(name, pattern);
 }
+
+// НОВЫЙ МЕТОД: поиск по маске
+std::vector<Resource*> Directory::searchByMask(const std::string& mask) const {
+    std::vector<Resource*> results;
+
+    // Поиск в текущей папке
+    for (const auto& child : children) {
+        std::string name = child->getName();
+        if (name.find(mask) != std::string::npos) {
+            results.push_back(child.get());
+        }
+    }
+
+    // Рекурсивный поиск во вложенных папках
+    for (const auto& child : children) {
+        if (auto* subdir = dynamic_cast<Directory*>(child.get())) {
+            auto subResults = subdir->searchByMask(mask);
+            results.insert(results.end(), subResults.begin(), subResults.end());
+        }
+    }
+
+    return results;
+}

@@ -24,7 +24,7 @@ void showMenu() {
     cout << "4. Удалить ресурс\n";
     cout << "5. Переместить ресурс\n";
     cout << "6. Скопировать ресурс\n";
-    cout << "7. Поиск по имени\n";
+    cout << "7. Поиск по маске (имя/расширение)\n";
     cout << "8. Фильтрация по дате\n";
     cout << "9. Статистика\n";
     cout << "10. Сохранить архив\n";
@@ -104,7 +104,28 @@ void deleteResource() {
     }
 }
 
-// Функция для поиска
+// Функция для поиска по маске (НОВАЯ)
+void searchByMask() {
+    string mask;
+    cout << "Введите маску для поиска (часть имени или расширения): ";
+    cin >> mask;
+
+    auto results = root->searchByMask(mask);
+
+    if (results.empty()) {
+        cout << "Ничего не найдено по маске \"" << mask << "\"\n";
+        Logger::getInstance()->warning("Search by mask \"" + mask + "\" found nothing");
+    }
+    else {
+        cout << "Найдено " << results.size() << " ресурсов:\n";
+        for (auto* res : results) {
+            res->print();
+        }
+        Logger::getInstance()->info("Search by mask \"" + mask + "\" found " + to_string(results.size()) + " results");
+    }
+}
+
+// Функция для поиска по имени (старая, теперь заменена на маску)
 void searchResource() {
     string name;
     cout << "Введите имя для поиска: ";
@@ -158,7 +179,7 @@ void showStatistics() {
     Logger::getInstance()->info("Statistics viewed: " + to_string(fileCount) + " files, " + to_string(dirCount) + " directories");
 }
 
-// Сохранение в файл (заглушка)
+// Сохранение в файл (реальная сериализация)
 void saveArchive() {
     string filename = "archive.dat";
     try {
@@ -172,7 +193,7 @@ void saveArchive() {
     }
 }
 
-// Загрузка из файла (заглушка)
+// Загрузка из файла (реальная сериализация)
 void loadArchive() {
     string filename = "archive.dat";
     try {
@@ -254,7 +275,7 @@ int main() {
             copyResource();
             break;
         case 7:
-            searchResource();
+            searchByMask();  // НОВАЯ ФУНКЦИЯ ПОИСКА ПО МАСКЕ
             break;
         case 8:
             filterByDate();

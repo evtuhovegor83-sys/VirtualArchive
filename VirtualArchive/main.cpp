@@ -217,7 +217,7 @@ void loadArchive() {
     }
 }
 
-// Функция для перемещения ресурса (ШАГ 2 - РЕАЛЬНАЯ)
+// Функция для перемещения ресурса
 void moveResource() {
     string name;
     string targetName;
@@ -253,10 +253,47 @@ void moveResource() {
     }
 }
 
-// Функция для копирования (заглушка)
+// Функция для копирования ресурса (ШАГ 3 - РЕАЛЬНАЯ)
 void copyResource() {
-    cout << "Копирование (будет реализовано позже)...\n";
-    Logger::getInstance()->info("Copy resource requested");
+    string name;
+    string targetName;
+
+    cout << "Введите имя ресурса для копирования: ";
+    cin >> name;
+    cout << "Введите имя целевой папки: ";
+    cin >> targetName;
+
+    Resource* source = root->findChild(name);
+    if (source == nullptr) {
+        cout << "Исходный ресурс не найден\n";
+        Logger::getInstance()->warning("Copy failed: source not found: " + name);
+        return;
+    }
+
+    Resource* target = root->findChild(targetName);
+    if (target == nullptr) {
+        cout << "Целевая папка не найдена\n";
+        Logger::getInstance()->warning("Copy failed: target not found: " + targetName);
+        return;
+    }
+
+    Directory* targetDir = dynamic_cast<Directory*>(target);
+    if (targetDir == nullptr) {
+        cout << "Целевой ресурс не является папкой\n";
+        Logger::getInstance()->warning("Copy failed: target is not a directory");
+        return;
+    }
+
+    try {
+        auto copy = source->clone();
+        targetDir->addChild(std::move(copy));
+        cout << "Ресурс \"" << name << "\" скопирован в папку \"" << targetName << "\"\n";
+        Logger::getInstance()->info("Copied " + name + " to " + targetName);
+    }
+    catch (const exception& e) {
+        cout << "Ошибка копирования: " << e.what() << "\n";
+        Logger::getInstance()->error("Copy failed: " + string(e.what()));
+    }
 }
 
 int main() {

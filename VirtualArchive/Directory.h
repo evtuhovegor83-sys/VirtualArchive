@@ -26,6 +26,7 @@ public:
     void addChild(std::unique_ptr<Resource> child);
     std::unique_ptr<Resource> removeChild(const std::string& name);
     Resource* findChild(const std::string& name) const;
+    void exportToCSV(const std::string& filename) const;
 
     AccessLevel getAccessLevel() const;
     void setAccessLevel(AccessLevel level);

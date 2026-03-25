@@ -5,6 +5,8 @@
 #include <iostream>
 #include <algorithm>
 #include <regex>
+#include <fstream>
+#include <functional>
 
 Directory::Directory(const std::string& name, AccessLevel level)
     : Resource(name), accessLevel(level) {
@@ -151,6 +153,7 @@ void Directory::moveChild(const std::string& name, Directory* newParent) {
     newParent->addChild(std::move(child));
     Logger::getInstance()->info("Moved " + name + " to new parent");
 }
+
 // Сортировка детей
 void Directory::sortChildren(SortBy sortBy) {
     switch (sortBy) {
@@ -174,4 +177,34 @@ void Directory::sortChildren(SortBy sortBy) {
         break;
     }
     Logger::getInstance()->info("Directory sorted");
+}
+
+// Экспорт в CSV
+void Directory::exportToCSV(const std::string& filename) const {
+    std::ofstream file(filename);
+    if (!file.is_open()) {
+        throw ArchiveException("Cannot open file for CSV export: " + filename);
+    }
+
+    file << "Type,Name,Size(Bytes),CreationDate\n";
+
+    std::function<void(const Directory*)> exportRecursive = [&](const Directory* dir) {
+        for (const auto& child : dir->getChildren()) {
+            if (auto* fileObj = dynamic_cast<File*>(child.get())) {
+                file << "File," << fileObj->getName() << "." << fileObj->getExtension()
+                    << "," << fileObj->getSize()
+                    << "," << fileObj->getCreationDate().toString() << "\n";
+            }
+            else if (auto* subdir = dynamic_cast<Directory*>(child.get())) {
+                file << "Directory," << subdir->getName()
+                    << ",0," << subdir->getCreationDate().toString() << "\n";
+                exportRecursive(subdir);
+            }
+        }
+        };
+
+    exportRecursive(this);
+    file.close();
+
+    Logger::getInstance()->info("CSV exported to " + filename);
 }

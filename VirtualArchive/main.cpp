@@ -30,6 +30,7 @@ void showMenu() {
     cout << "10. Сохранить архив\n";
     cout << "11. Загрузить архив\n";
     cout << "12. Сортировка корневой папки\n";
+    cout << "13. Экспорт в CSV\n";
     cout << "0. Выход\n";
     cout << "========================================\n";
     cout << "Ваш выбор: ";
@@ -297,7 +298,7 @@ void copyResource() {
     }
 }
 
-// Функция для сортировки корневой папки (ШАГ 4)
+// Функция для сортировки корневой папки
 void sortRoot() {
     int choice;
     cout << "Сортировка по: 1-Имя, 2-Размер, 3-Дата: ";
@@ -316,6 +317,23 @@ void sortRoot() {
     root->sortChildren(sortBy);
     cout << "Сортировка выполнена\n";
     Logger::getInstance()->info("Root directory sorted");
+}
+
+// Функция для экспорта в CSV (ШАГ 5)
+void exportToCSV() {
+    string filename;
+    cout << "Введите имя файла для экспорта: ";
+    cin >> filename;
+
+    try {
+        root->exportToCSV(filename);
+        cout << "Экспорт выполнен в файл " << filename << "\n";
+        Logger::getInstance()->info("CSV exported to " + filename);
+    }
+    catch (const exception& e) {
+        cout << "Ошибка экспорта: " << e.what() << "\n";
+        Logger::getInstance()->error("CSV export failed: " + string(e.what()));
+    }
 }
 
 int main() {
@@ -381,12 +399,15 @@ int main() {
         case 12:
             sortRoot();
             break;
+        case 13:
+            exportToCSV();
+            break;
         case 0:
             cout << "Выход из программы...\n";
             Logger::getInstance()->info("Program exited");
             break;
         default:
-            cout << "Неверный выбор! Введите число от 0 до 12.\n";
+            cout << "Неверный выбор! Введите число от 0 до 13.\n";
             Logger::getInstance()->warning("Invalid menu choice: " + to_string(choice));
         }
     } while (choice != 0);
